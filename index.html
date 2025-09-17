@@ -810,6 +810,21 @@
                 <button class="quiz-submit" id="quiz-submit">Enviar Respostas</button>
                 <div class="quiz-result" id="quiz-result"></div>
             </div>
+<div class="present-hunt-section" id="hangman-section">
+    <h2 class="present-hunt-title">Joguinho da Forca</h2>
+    <p class="present-hunt-clue">Dica: O que está faltando?</p>
+    
+    <canvas id="hangman-canvas" width="200" height="250" style="background: #f0f7ff; border-radius: 12px; margin-bottom:15px;"></canvas>
+    
+    <p id="hangman-word" style="letter-spacing: 5px; font-size: 1.5rem; color: #1e5cb3; font-weight: 600;"></p>
+    
+    <p>Tente uma letra:</p>
+    <input type="text" id="hangman-input" maxlength="1" style="text-align:center; padding:10px; border:2px solid #4a90e2; border-radius:8px; width:50px;">
+    <button class="present-hunt-submit" id="hangman-submit">Chutar</button>
+    
+    <p id="hangman-wrong" style="color:#dc2626; font-weight:600; margin-top:10px;"></p>
+    <p id="hangman-result" style="margin-top:15px; font-weight:600;"></p>
+</div>
 
             <div class="present-hunt-section">
                 <h2 class="present-hunt-title">Cadê meu presente?</h2>
@@ -1194,6 +1209,152 @@ Amo o jeito que você cuida de mim quando estou na sua casa e com você</p>
             setupQuiz();
             setupPresentHunt();
         };
+        // Joguinho da Forca com bonequinho
+function setupHangman() {
+    const word = "aliança";
+    const maxAttempts = 6;
+    let attempts = 0;
+    let guessedLetters = [];
+
+    const canvas = document.getElementById('hangman-canvas');
+    const ctx = canvas.getContext('2d');
+
+    const wordDisplay = document.getElementById('hangman-word');
+    const input = document.getElementById('hangman-input');
+    const submit = document.getElementById('hangman-submit');
+    const wrongDisplay = document.getElementById('hangman-wrong');
+    const resultDisplay = document.getElementById('hangman-result');
+
+    function drawHangman() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#1e5cb3";
+
+        // Base
+        ctx.beginPath();
+        ctx.moveTo(10, 240);
+        ctx.lineTo(150, 240);
+        ctx.stroke();
+
+        // Poste
+        ctx.beginPath();
+        ctx.moveTo(50, 240);
+        ctx.lineTo(50, 20);
+        ctx.stroke();
+
+        // Viga
+        ctx.beginPath();
+        ctx.moveTo(50, 20);
+        ctx.lineTo(120, 20);
+        ctx.stroke();
+
+        // Corda
+        ctx.beginPath();
+        ctx.moveTo(120, 20);
+        ctx.lineTo(120, 50);
+        ctx.stroke();
+
+        // Cabeça
+        if (attempts > 0) {
+            ctx.beginPath();
+            ctx.arc(120, 70, 20, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        // Corpo
+        if (attempts > 1) {
+            ctx.beginPath();
+            ctx.moveTo(120, 90);
+            ctx.lineTo(120, 150);
+            ctx.stroke();
+        }
+
+        // Braço esquerdo
+        if (attempts > 2) {
+            ctx.beginPath();
+            ctx.moveTo(120, 100);
+            ctx.lineTo(90, 130);
+            ctx.stroke();
+        }
+
+        // Braço direito
+        if (attempts > 3) {
+            ctx.beginPath();
+            ctx.moveTo(120, 100);
+            ctx.lineTo(150, 130);
+            ctx.stroke();
+        }
+
+        // Perna esquerda
+        if (attempts > 4) {
+            ctx.beginPath();
+            ctx.moveTo(120, 150);
+            ctx.lineTo(90, 190);
+            ctx.stroke();
+        }
+
+        // Perna direita
+        if (attempts > 5) {
+            ctx.beginPath();
+            ctx.moveTo(120, 150);
+            ctx.lineTo(150, 190);
+            ctx.stroke();
+        }
+    }
+
+    function updateWordDisplay() {
+        let display = '';
+        for (let char of word) {
+            if (guessedLetters.includes(char.toLowerCase())) {
+                display += char + ' ';
+            } else if (char === 'ç') {
+                display += 'ç ';
+            } else {
+                display += '_ ';
+            }
+        }
+        wordDisplay.textContent = display.trim();
+    }
+
+    submit.addEventListener('click', () => {
+        const guess = input.value.toLowerCase();
+        input.value = '';
+        if (!guess || guessedLetters.includes(guess)) return;
+
+        if (word.includes(guess)) {
+            guessedLetters.push(guess);
+        } else {
+            attempts++;
+            wrongDisplay.textContent = `Erros: ${attempts} de ${maxAttempts}`;
+        }
+
+        drawHangman();
+        updateWordDisplay();
+
+        // Vitória
+        if ([...word].every(c => guessedLetters.includes(c) || c === 'ç')) {
+            resultDisplay.textContent = "Parabéns! Você acertou a palavra! 🎉";
+            submit.disabled = true;
+        }
+
+        // Derrota
+        if (attempts >= maxAttempts) {
+            resultDisplay.textContent = `Que pena! A palavra era: "${word}" 😢`;
+            submit.disabled = true;
+        }
+    });
+
+    input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') submit.click();
+    });
+
+    drawHangman();
+    updateWordDisplay();
+}
+
+// Inicializar forca
+setupHangman();
+
     </script>
 </body>
 
